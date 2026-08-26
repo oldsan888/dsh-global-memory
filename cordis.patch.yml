@@ -1,0 +1,35 @@
+# Replaces the built-in memory tool with this independently versioned bundle.
+# DSH 0.1.0 supplies SQLite itself; DSH 0.1.1 does not. storage-compat reuses
+# an existing sqlite backend and mounts the official provider only when absent.
+- id: tool-memory
+  disabled: true
+
+- id: storage-domain
+  config:
+    backend: json
+    routes:
+      agent_memories: sqlite
+
+- insert:
+    - id: global-memory-storage-compat
+      name: '@oldsan888/dsh-global-memory/storage-compat'
+      config:
+        path: !!js dshHomePath('storages/agent-memories.db')
+
+    - id: global-memory
+      name: '@oldsan888/dsh-global-memory'
+      config:
+        recallTopK: 8
+        autoInject: true
+        autoInjectTopK: 8
+        autoInjectMaxChars: 3600
+        embedding:
+          # PUBLIC DEFAULT: disabled. Memory bodies are sent to the configured
+          # OpenAI-compatible service ONLY while this is true — deployments
+          # must opt in explicitly (edit their installed profile config, not
+          # this distributed default). Keyword recall works without it.
+          enabled: false
+          baseUrl: https://api.siliconflow.cn/v1
+          model: BAAI/bge-m3
+          dim: 1024
+          apiKey: !!js process.env.SILICONFLOW_API_KEY
