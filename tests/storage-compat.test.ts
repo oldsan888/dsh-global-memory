@@ -3,7 +3,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import { apply } from '../src/storage-compat.ts'
 
 describe('storage compatibility adapter', () => {
-  it('reuses the SQLite backend already mounted by DSH 0.1.0', async () => {
+  it('reuses a SQLite backend already mounted by the host', async () => {
     const effect = vi.fn()
     const provide = vi.fn()
     const ctx = {
@@ -18,7 +18,7 @@ describe('storage compatibility adapter', () => {
     expect(provide).not.toHaveBeenCalled()
   })
 
-  it('mounts and disposes the official SQLite provider for DSH 0.1.1', async () => {
+  it('mounts and disposes the official SQLite provider when absent', async () => {
     const backends = new Map<string, unknown>([['json', {}]])
     let dispose: (() => Promise<void>) | undefined
     const provide = vi.fn()

@@ -1,0 +1,14 @@
+packages:
+  - .
+
+# The published rc.2 core packages declare these as rc.2 peers, but pnpm's
+# automatic peer installation otherwise selects stale rc.7 packages.
+overrides:
+  '@deepseek-ai/dsh-attachment': 0.1.1-rc.2
+  '@deepseek-ai/dsh-brand': 0.1.1-rc.2
+  '@deepseek-ai/dsh-code-runtime': 0.1.1-rc.2
+  '@deepseek-ai/dsh-scope': 0.1.1-rc.2
+  '@deepseek-ai/dsh-system-prompt': 0.1.1-rc.2
+  '@deepseek-ai/dsh-timeout': 0.1.1-rc.2
+  '@deepseek-ai/dsh-typert-protocol': 0.1.1-rc.2
+  '@deepseek-ai/dsh-user-approval': 0.1.1-rc.2

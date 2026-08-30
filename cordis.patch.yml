@@ -1,8 +1,5 @@
-# Replaces the built-in memory tool with this independently versioned bundle.
-# DSH 0.1.0 supplies SQLite itself; DSH 0.1.1 does not. storage-compat reuses
-# an existing sqlite backend and mounts the official provider only when absent.
-- id: tool-memory
-  disabled: true
+# Route the memory domain to SQLite. storage-compat reuses an existing SQLite
+# backend and mounts the official provider only when one is not already present.
 
 - id: storage-domain
   config:

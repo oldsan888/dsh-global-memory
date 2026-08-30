@@ -971,7 +971,7 @@ export async function apply(ctx: Context, config: Config = {}): Promise<void> {
         // Real host message contract (verified on deployed rc.5 and dev rc.7):
         // only `form: 'snapshot'` carries `sections`; `form: 'recall'` does not.
         // `snapshotExists` recognises this plugin's snapshot via the named
-        // section, exactly like the host's built-in tool-memory (M1).
+        // section so unrelated snapshots do not suppress memory injection.
         source: {
           kind: 'plugin', plugin: name, form: 'snapshot',
           sections: [{ name: AUTO_INJECT_FORM, text }],

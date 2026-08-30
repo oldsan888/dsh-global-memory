@@ -144,5 +144,4 @@ export const memoryDomainSpec = defineDomain({
 })
 
 // The zod object's inferred output is `string`-keyed; the domain record type is
-// branded as `MemoryId`. Host's built-in plugin casts identically; the cast is
-// intentional and mirrors `@deepseek-ai/dsh-tool-memory`'s own spec.ts.
+// branded as `MemoryId`; the cast is intentional at the storage-domain boundary.

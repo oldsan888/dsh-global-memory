@@ -1,10 +1,8 @@
 /**
- * Cross-version SQLite assembly for the global-memory bundle.
+ * SQLite assembly for the global-memory bundle.
  *
- * DSH 0.1.0's Web bundle already mounts the official `sqlite` backend. DSH
- * 0.1.1 keeps the provider package but no longer mounts it. This adapter
- * preserves the host-owned backend when present and supplies the same official
- * provider only when the backend registry has no `sqlite` entry.
+ * This adapter preserves a host-owned backend when present and mounts the
+ * official provider only when the backend registry has no `sqlite` entry.
  */
 import type { Context } from '@deepseek-ai/cordis'
 import { storageBackendServiceKey } from '@deepseek-ai/dsh-storage'
@@ -13,7 +11,7 @@ import type { JournalMode } from '@deepseek-ai/dsh-storage-sqlite'
 export const name = 'dsh-global-memory-storage-compat'
 export const inject = ['storage']
 
-/** SQLite medium configuration shared by the v1 reuse and v2 fallback paths. */
+/** SQLite medium configuration shared by the reuse and fallback paths. */
 export interface Config {
   /** Absolute database path, normally `$DSH_HOME/storages/agent-memories.db`. */
   path: string
