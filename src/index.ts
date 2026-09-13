@@ -157,22 +157,45 @@ function cleaned(value: string | undefined, max: number): string | undefined {
   return result
 }
 
+type SessionEventLike = {
+  type?: string
+  data?: { source?: { kind?: string; plugin?: string; sections?: readonly { name?: string }[] } }
+}
+
+/**
+ * Read one surface node from a host Session.
+ *
+ * DSH 0.1.1 exposed `session.events[seq]`. 0.1.5 removed that array getter
+ * and only keeps `eventAt(seq)`. Looking up `events[seq]` on v3 throws
+ * `Cannot read properties of undefined (reading '<seq>')` on the second
+ * turn — the first turn's surface is still empty, so the crash waits until
+ * `surface.nodes` has a real sequence.
+ */
+function sessionEventAt(session: Agent['session'], sequence: number): SessionEventLike | undefined {
+  const current = session as Agent['session'] & {
+    eventAt?: (seq: number) => SessionEventLike | undefined
+    events?: ReadonlyArray<SessionEventLike | undefined>
+  }
+  if (typeof current.eventAt === 'function') return current.eventAt(sequence)
+  return current.events?.[sequence]
+}
+
 /**
  * Whether the agent's visible session surface already carries one of this
  * plugin's auto-inject snapshot messages. Mirrors the host's built-in
  * `sessionHasAutoInject` using the real `Session` types (`surface.nodes` over
- * the durable `events` log). Only the merge-extensible `source` object is
+ * the durable event log). Only the merge-extensible `source` object is
  * narrowly narrowed after a `kind/plugin` guard — no whole-session unknown
  * casts (M1).
  */
 function snapshotExists(agent: Agent): boolean {
   const session = agent.session
   for (const sequence of session.surface.nodes) {
-    const event = session.events[sequence]
+    const event = sessionEventAt(session, sequence)
     if (event === undefined || event.type !== 'user/message') continue
     const source = event.data.source
-    if (source.kind !== 'plugin' || source.plugin !== name) continue
-    const sections = (source as { sections?: readonly { name?: string }[] }).sections
+    if (source?.kind !== 'plugin' || source.plugin !== name) continue
+    const sections = source.sections
     if (sections?.some(section => section.name === AUTO_INJECT_FORM)) return true
   }
   return false

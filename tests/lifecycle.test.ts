@@ -236,6 +236,41 @@ describe('auto-inject snapshot (pre-step) Phase 0 behaviour', () => {
     expect(second).toEqual({ kind: 'enter', messages: [] })
   })
 
+  it('does not throw on a v3 session that no longer exposes session.events', async () => {
+    const { preStep } = await harness()
+    const next = async () => ({ kind: 'enter' as const, messages: [] })
+    const events = new Map<number, { type: string; data: { source: { kind: string; plugin?: string; sections?: Array<{ name: string }> } } }>([
+      [7, { type: 'user/message', data: { source: { kind: 'user' } } }],
+    ])
+    const v3Agent = {
+      session: {
+        surface: { nodes: [7] },
+        eventAt: (seq: number) => events.get(seq),
+      },
+    }
+    const result = await preStep({ agent: v3Agent, step: 1 }, next) as { kind: string; messages: unknown[] }
+    expect(result.kind).toBe('enter')
+    expect(result.messages).toHaveLength(1)
+  })
+
+  it('skips re-injection on a v3 session when eventAt already shows the snapshot', async () => {
+    const { preStep } = await harness()
+    const next = async () => ({ kind: 'enter' as const, messages: [] })
+    const events = new Map([
+      [7, {
+        type: 'user/message',
+        data: { source: { kind: 'plugin', plugin: 'dsh-global-memory', sections: [{ name: SNAPSHOT_FORM }] } },
+      }],
+    ])
+    const v3Agent = {
+      session: {
+        surface: { nodes: [7] },
+        eventAt: (seq: number) => events.get(seq),
+      },
+    }
+    await expect(preStep({ agent: v3Agent, step: 1 }, next)).resolves.toEqual({ kind: 'enter', messages: [] })
+  })
+
   it('does not inject on step !== 1 (pre-step listener guard)', async () => {
     const { preStep } = await harness()
     const freshAgent = { session: { surface: { nodes: [] }, events: [] } }
